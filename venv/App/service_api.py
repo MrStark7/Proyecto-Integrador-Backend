@@ -1,31 +1,50 @@
-# service_api.py
-
 from flask import request, jsonify
 from flask_restful import Api, Resource, abort
-from .models import Service, db
+from .app import Servicio, db
 from .app import app
 
 api = Api(app)
 
 class ServiceList(Resource):
     def get(self):
-        services = Service.query.all()
-        return [{'id': service.id, 'name': service.name, 'description': service.description, 'category': service.category} for service in services], 200
+        services = Servicio.query.all()
+        return [
+            {
+                'id': service.id,
+                'nombre': service.nombre,
+                'direccion': service.direccion,
+                'descripcion': service.descripcion,
+                'horario': service.horario,
+                'fecha': service.fecha,
+                'numerocontacto': service.numerocontacto,
+                'ventastotales': service.ventastotales,
+                'contador': service.contador,
+                'categoria': service.categoria,
+                'proveedor_id': service.proveedor_id
+            }
+            for service in services
+        ], 200
 
     def post(self):
         data = request.get_json()
         if not data:
             return {'message': 'No input data provided'}, 400
 
-        if not all(k in data for k in ('name', 'description', 'category', 'provider_id', 'available_slots')):
+        required_fields = ['nombre', 'direccion', 'descripcion', 'horario', 'fecha', 'numerocontacto', 'ventastotales', 'contador', 'categoria', 'proveedor_id']
+        if not all(field in data for field in required_fields):
             return {'message': 'Missing fields in request'}, 400
 
-        new_service = Service(
-            name=data['name'],
-            description=data['description'],
-            category=data['category'],
-            provider_id=data['provider_id'],
-            available_slots=data['available_slots']
+        new_service = Servicio(
+            nombre=data['nombre'],
+            direccion=data['direccion'],
+            descripcion=data['descripcion'],
+            horario=data['horario'],
+            fecha=data['fecha'],
+            numerocontacto=data['numerocontacto'],
+            ventastotales=data['ventastotales'],
+            contador=data['contador'],
+            categoria=data['categoria'],
+            proveedor_id=data['proveedor_id']
         )
         db.session.add(new_service)
         db.session.commit()
@@ -35,20 +54,25 @@ api.add_resource(ServiceList, '/service')
 
 class ServiceDetail(Resource):
     def get(self, service_id):
-        service = Service.query.get(service_id)
+        service = Servicio.query.get(service_id)
         if service is None:
             abort(404, message="Service {} doesn't exist".format(service_id))
         return {
             'id': service.id,
-            'name': service.name,
-            'description': service.description,
-            'category': service.category,
-            'available_slots': service.available_slots,
-            'provider_id': service.provider_id
+            'nombre': service.nombre,
+            'direccion': service.direccion,
+            'descripcion': service.descripcion,
+            'horario': service.horario,
+            'fecha': service.fecha,
+            'numerocontacto': service.numerocontacto,
+            'ventastotales': service.ventastotales,
+            'contador': service.contador,
+            'categoria': service.categoria,
+            'proveedor_id': service.proveedor_id
         }, 200
 
     def put(self, service_id):
-        service = Service.query.get(service_id)
+        service = Servicio.query.get(service_id)
         if service is None:
             abort(404, message="Service {} doesn't exist".format(service_id))
         
@@ -56,18 +80,25 @@ class ServiceDetail(Resource):
         if not data:
             return {'message': 'No input data provided'}, 400
 
-        if not all(k in data for k in ('name', 'description', 'category', 'available_slots')):
+        required_fields = ['nombre', 'direccion', 'descripcion', 'horario', 'fecha', 'numerocontacto', 'ventastotales', 'contador', 'categoria']
+        if not all(field in data for field in required_fields):
             return {'message': 'Missing fields in request'}, 400
 
-        service.name = data['name']
-        service.description = data['description']
-        service.category = data['category']
-        service.available_slots = data['available_slots']
+        service.nombre = data['nombre']
+        service.direccion = data['direccion']
+        service.descripcion = data['descripcion']
+        service.horario = data['horario']
+        service.fecha = data['fecha']
+        service.numerocontacto = data['numerocontacto']
+        service.ventastotales = data['ventastotales']
+        service.contador = data['contador']
+        service.categoria = data['categoria']
+        service.proveedor_id = data.get('proveedor_id', service.proveedor_id)
         db.session.commit()
         return {'message': 'Service updated successfully'}, 200
 
     def delete(self, service_id):
-        service = Service.query.get(service_id)
+        service = Servicio.query.get(service_id)
         if service is None:
             abort(404, message="Service {} doesn't exist".format(service_id))
         

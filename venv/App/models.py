@@ -3,33 +3,45 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-class User(db.Model):
+class Usuario(db.Model):
+    __tablename__ = 'usuario'
+    
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False, unique=True)
-    first_name = db.Column(db.String(150), nullable=False)
-    last_name = db.Column(db.String(150), nullable=False)
-    email = db.Column(db.String(150), nullable=False, unique=True)
-    phone = db.Column(db.String(15), nullable=False)
-    password = db.Column(db.String(256), nullable=False)
+    nombre = db.Column(db.String(255), nullable=True)
+    apellido = db.Column(db.String(255), nullable=True)
+    direccion = db.Column(db.String(255), nullable=True)
+    email = db.Column(db.String(255), nullable=True, unique=True)
+    telefono = db.Column(db.String(255), nullable=True)
+    contraseña = db.Column(db.String(255), nullable=False)
+    tipo_usuario = db.Column(db.String(20), nullable=False)
 
-class Service(db.Model):
+class Servicio(db.Model):
+    __tablename__ = 'servicios'
+    
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    category = db.Column(db.String(50), nullable=False)
-    available_slots = db.Column(db.JSON, nullable=False)
-    provider_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    nombre = db.Column(db.String(255), nullable=True)
+    direccion = db.Column(db.String(255), nullable=True)
+    descripcion = db.Column(db.Text, nullable=True)
+    horario = db.Column(db.String(255), nullable=True)
+    fecha = db.Column(db.Date, nullable=True)
+    numerocontacto = db.Column(db.String(255), nullable=True)
+    ventastotales = db.Column(db.Integer, nullable=True)
+    contador = db.Column(db.Integer, nullable=True)
+    categoria = db.Column(db.String(255), nullable=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey('servicios.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
 class Appointment(db.Model):
+    __tablename__ = 'appointment'
+    
     id = db.Column(db.Integer, primary_key=True)
     appointment_time = db.Column(db.DateTime, nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey('servicios.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
